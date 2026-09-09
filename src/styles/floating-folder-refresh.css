@@ -1,0 +1,836 @@
+/* Quick Folder visual refresh. Every rule is scoped to the floating-folder
+   widget so the shared Electron shell and the other widgets remain unchanged. */
+body.widget-type-floatingFolder {
+  --ff-blue-50: #f3f6ff;
+  --ff-blue-100: #e9efff;
+  --ff-blue-200: #d7e2ff;
+  --ff-blue-500: #4e70f5;
+  --ff-blue-600: #315ce9;
+  --ff-blue-700: #2449c9;
+  --ff-ink: #182238;
+  --ff-muted: #748095;
+  --ff-border: rgba(183, 202, 231, 0.62);
+  --ff-radius: 24px;
+  --ff-shadow: 0 5px 16px rgba(45, 75, 120, 0.16), 0 1px 4px rgba(45, 75, 120, 0.08);
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  border-radius: 0;
+  clip-path: none;
+  background: transparent;
+}
+
+body.widget-type-floatingFolder .widget-card,
+body.widget-type-floatingFolder.is-floating-folder-expanded .widget-card,
+body[data-theme="light"].widget-type-floatingFolder .widget-card,
+body[data-theme="glass"].widget-type-floatingFolder .widget-card {
+  width: calc(100vw - 8px);
+  height: calc(100vh - 8px);
+  box-sizing: border-box;
+  margin: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(183, 202, 231, 0.7);
+  border-radius: var(--ff-radius);
+  clip-path: inset(0 round var(--ff-radius));
+  color: var(--ff-ink);
+  background:
+    radial-gradient(circle at 8% 5%, rgba(121, 150, 255, 0.1), transparent 26%),
+    /* The Electron window itself receives the slider opacity. Keep the shell
+       solid at 100%, so the setting means fully opaque instead of a 98%
+       translucent glass layer. */
+    linear-gradient(145deg, #ffffff, #f6f9ff),
+    #f8faff;
+  box-shadow: var(--ff-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(24px) saturate(1.08);
+}
+
+body.widget-type-floatingFolder .widget-card::before {
+  display: block;
+  background: linear-gradient(118deg, rgba(255, 255, 255, 0.42), transparent 34%);
+  opacity: 0.72;
+}
+
+body.widget-type-floatingFolder .widget-card::after {
+  inset: 1px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: calc(var(--ff-radius) - 2px);
+  background: transparent;
+  box-shadow: none;
+}
+
+body[data-theme="dark"].widget-type-floatingFolder {
+  --ff-ink: #f4f7ff;
+  --ff-muted: #aab5c9;
+  --ff-border: rgba(135, 158, 201, 0.34);
+  --ff-shadow: 0 5px 18px rgba(0, 0, 0, 0.34), 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+body[data-theme="dark"].widget-type-floatingFolder .widget-card {
+  border-color: rgba(143, 163, 202, 0.34);
+  color: var(--ff-ink);
+  background:
+    radial-gradient(circle at 8% 5%, rgba(99, 113, 241, 0.15), transparent 28%),
+    linear-gradient(145deg, #202636, #171c29),
+    #171c29;
+}
+
+body.widget-type-floatingFolder .floating-folder-widget,
+body.ff-hide-hint.widget-type-floatingFolder .floating-folder-widget {
+  grid-template-rows: 48px 48px minmax(0, 1fr);
+  border-radius: inherit;
+  color: var(--ff-ink);
+}
+
+body.ff-detached-zone.widget-type-floatingFolder .floating-folder-widget {
+  grid-template-rows: 48px minmax(0, 1fr);
+}
+
+body.widget-type-floatingFolder .ff-titlebar {
+  min-height: 48px;
+  padding: 5px 10px 1px 12px;
+  border: 0;
+  background: transparent;
+  -webkit-app-region: drag;
+}
+
+body.widget-type-floatingFolder .ff-title {
+  gap: 9px;
+}
+
+/* The legacy floating-folder stylesheet marks every descendant as no-drag.
+   Restore the whole non-interactive title block as the window drag handle;
+   the action group below remains no-drag so its buttons stay clickable. */
+body.widget-type-floatingFolder .ff-titlebar .ff-title,
+body.widget-type-floatingFolder .ff-titlebar .ff-title-mark-shell,
+body.widget-type-floatingFolder .ff-titlebar .ff-title-mark,
+body.widget-type-floatingFolder .ff-titlebar .ff-title-copy,
+body.widget-type-floatingFolder .ff-titlebar .ff-title-copy * {
+  -webkit-app-region: drag;
+}
+
+body.widget-type-floatingFolder .ff-titlebar .ff-title-actions,
+body.widget-type-floatingFolder .ff-titlebar .ff-title-actions * {
+  -webkit-app-region: no-drag;
+}
+
+body.widget-type-floatingFolder .ff-title-mark-shell {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(212, 222, 250, 0.72);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(238, 242, 255, 0.96), rgba(246, 248, 255, 0.72));
+  box-shadow: 0 5px 13px rgba(78, 95, 167, 0.1), inset 0 1px 0 white;
+}
+
+body.widget-type-floatingFolder .ff-title-mark {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 5px rgba(72, 92, 190, 0.18));
+}
+
+body.widget-type-floatingFolder .ff-title-copy strong,
+body[data-theme="dark"].widget-type-floatingFolder .ff-title-copy strong {
+  color: var(--ff-ink);
+  font-size: 16px;
+  font-weight: 720;
+  letter-spacing: -0.02em;
+}
+
+body.widget-type-floatingFolder .ff-title-actions {
+  gap: 5px;
+}
+
+body.widget-type-floatingFolder .ff-icon-button {
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  border: 1px solid rgba(197, 211, 234, 0.58);
+  border-radius: 11px;
+  color: #27344b;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 4px 11px rgba(60, 79, 115, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.92);
+  transition: border-color 150ms ease, background 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+body.widget-type-floatingFolder .ff-icon-button .ff-ui-icon {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.65;
+}
+
+body.widget-type-floatingFolder .ff-icon-button:hover {
+  border-color: rgba(120, 148, 205, 0.44);
+  color: #1b2940;
+  background: rgba(255, 255, 255, 0.94);
+  transform: translateY(-1px);
+}
+
+body.widget-type-floatingFolder .ff-icon-button[aria-pressed="true"],
+body.widget-type-floatingFolder .ff-icon-button.is-active {
+  color: #315ce9;
+  border-color: rgba(139, 163, 238, 0.48);
+  background: linear-gradient(145deg, #f1f4ff, #e8eeff);
+  box-shadow: 0 5px 13px rgba(70, 91, 184, 0.14), inset 0 1px 0 white;
+}
+
+body.widget-type-floatingFolder .ff-icon-button--close:hover {
+  color: #344056;
+  background: #f5f7fb;
+}
+
+body[data-theme="dark"].widget-type-floatingFolder .ff-title-mark-shell,
+body[data-theme="dark"].widget-type-floatingFolder .ff-icon-button {
+  border-color: rgba(152, 171, 207, 0.22);
+  color: #eef3ff;
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+body.widget-type-floatingFolder .ff-zone-tabs {
+  min-height: 42px;
+  margin: 0 12px 6px;
+  padding: 4px 8px;
+  gap: 4px;
+  overflow-x: auto;
+  border: 1px solid rgba(198, 213, 238, 0.58);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.48);
+  box-shadow: 0 5px 16px rgba(71, 92, 131, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.82);
+}
+
+body.widget-type-floatingFolder .ff-zone-tab,
+body[data-theme="dark"].widget-type-floatingFolder .ff-zone-tab {
+  min-width: auto;
+  min-height: 32px;
+  gap: 5px;
+  padding: 0 9px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  color: #465166;
+  background: transparent;
+  box-shadow: none;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+body.widget-type-floatingFolder .ff-zone-icon {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  object-fit: contain;
+  opacity: 0.72;
+}
+
+body.widget-type-floatingFolder .ff-zone-tab:hover {
+  border-color: rgba(188, 204, 232, 0.5);
+  color: #263551;
+  background: rgba(242, 246, 255, 0.76);
+}
+
+body.widget-type-floatingFolder .ff-zone-tab.is-active,
+body[data-theme="dark"].widget-type-floatingFolder .ff-zone-tab.is-active {
+  color: #315ce9;
+  border-color: rgba(187, 201, 246, 0.46);
+  background: linear-gradient(145deg, #eef2ff, #e7edff);
+  box-shadow: 0 5px 13px rgba(71, 91, 181, 0.1), inset 0 1px 0 white;
+}
+
+body.widget-type-floatingFolder .ff-zone-tab.is-active .ff-zone-icon {
+  opacity: 1;
+  filter: invert(37%) sepia(74%) saturate(3072%) hue-rotate(218deg) brightness(94%) contrast(94%);
+}
+
+body.widget-type-floatingFolder .ff-zone-tab--add,
+body[data-theme="dark"].widget-type-floatingFolder .ff-zone-tab--add {
+  margin-left: auto;
+  padding-inline: 10px;
+  border-color: rgba(99, 125, 236, 0.45);
+  border-style: solid;
+  color: #315ce9;
+  background: rgba(248, 250, 255, 0.68);
+}
+
+body.widget-type-floatingFolder .ff-zone-tab--add:hover {
+  border-color: rgba(75, 105, 232, 0.64);
+  color: #2449c9;
+  background: #f0f4ff;
+}
+
+body[data-theme="dark"].widget-type-floatingFolder .ff-zone-tabs {
+  border-color: rgba(143, 163, 202, 0.22);
+  background: rgba(255, 255, 255, 0.045);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+body[data-theme="dark"].widget-type-floatingFolder .ff-zone-tab {
+  color: #c7d0df;
+}
+
+body[data-theme="dark"].widget-type-floatingFolder .ff-zone-tab.is-active {
+  color: #a9b9ff;
+  border-color: rgba(127, 146, 231, 0.3);
+  background: rgba(86, 103, 192, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+body[data-theme="dark"].widget-type-floatingFolder .ff-zone-tab--add {
+  color: #a9b9ff;
+  border-color: rgba(136, 155, 244, 0.44);
+  background: rgba(106, 119, 194, 0.08);
+}
+
+body.widget-type-floatingFolder .ff-app-surface,
+body[data-theme="dark"].widget-type-floatingFolder .ff-app-surface {
+  margin: 0 12px 12px;
+  overflow: hidden;
+  border: 1px solid rgba(196, 212, 238, 0.62);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 50% 48%, rgba(222, 230, 255, 0.18), transparent 34%),
+    rgba(255, 255, 255, 0.42);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88), inset 0 0 26px rgba(124, 149, 203, 0.035);
+}
+
+body[data-theme="dark"].widget-type-floatingFolder .ff-app-surface {
+  border-color: rgba(143, 163, 202, 0.2);
+  background: rgba(255, 255, 255, 0.035);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), inset 0 0 30px rgba(72, 91, 160, 0.05);
+}
+
+body.widget-type-floatingFolder .ff-empty-state {
+  gap: 7px;
+  padding: 20px;
+  color: var(--ff-muted);
+}
+
+body.widget-type-floatingFolder .ff-empty-illustration {
+  width: 126px;
+  height: 126px;
+  margin-bottom: 1px;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 13px 17px rgba(76, 94, 180, 0.14));
+}
+
+body.widget-type-floatingFolder .ff-empty-state strong,
+body[data-theme="dark"].widget-type-floatingFolder .ff-empty-state strong {
+  max-width: 100%;
+  color: var(--ff-ink);
+  font-size: 15px;
+  font-weight: 720;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+
+body.widget-type-floatingFolder .ff-empty-state span {
+  max-width: 290px;
+  color: var(--ff-muted);
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+body.widget-type-floatingFolder .ff-app-grid {
+  padding: 14px 12px;
+}
+
+body.widget-type-floatingFolder .ff-app-item {
+  border-radius: 13px;
+}
+
+body.widget-type-floatingFolder .ff-app-item:hover {
+  background: rgba(237, 242, 255, 0.7);
+}
+
+body[data-theme="dark"].widget-type-floatingFolder .ff-app-item:hover {
+  background: rgba(118, 137, 204, 0.12);
+}
+
+body.widget-type-floatingFolder .ff-popover {
+  border-color: rgba(193, 207, 232, 0.72);
+  color: #26324a;
+  background: rgba(250, 252, 255, 0.96);
+  box-shadow: 0 18px 38px rgba(44, 66, 106, 0.18), inset 0 1px 0 white;
+  backdrop-filter: blur(28px) saturate(1.08);
+}
+
+body.widget-type-floatingFolder .ff-setting-group {
+  display: grid;
+  gap: 7px;
+}
+
+body.widget-type-floatingFolder .ff-settings-description {
+  margin: -2px 0 2px;
+  color: var(--ff-muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+body.widget-type-floatingFolder .ff-setting-label {
+  color: var(--ff-muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+body.widget-type-floatingFolder .ff-window-mode-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid rgba(193, 207, 232, 0.64);
+  border-radius: 12px;
+  background: rgba(242, 246, 255, 0.7);
+}
+
+body.widget-type-floatingFolder .ff-window-mode-controls button {
+  min-width: 0;
+  min-height: 30px;
+  padding: 0 3px;
+  border: 0;
+  border-radius: 9px;
+  color: #667087;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+body.widget-type-floatingFolder .ff-window-mode-controls button:hover {
+  color: #30405e;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+body.widget-type-floatingFolder .ff-window-mode-controls button.is-active {
+  color: #fff;
+  background: linear-gradient(145deg, #5b72ef, #315ce9);
+  box-shadow: 0 5px 12px rgba(49, 92, 233, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+body[data-theme="dark"].widget-type-floatingFolder .ff-window-mode-controls {
+  border-color: rgba(143, 163, 202, 0.24);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+body[data-theme="dark"].widget-type-floatingFolder .ff-window-mode-controls button {
+  color: #b8c3d8;
+}
+
+body[data-theme="dark"].widget-type-floatingFolder .ff-window-mode-controls button:hover {
+  color: #f1f4ff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+body[data-theme="dark"].widget-type-floatingFolder .ff-window-mode-controls button.is-active {
+  color: #fff;
+  background: linear-gradient(145deg, #6578e8, #4057cf);
+}
+
+body.widget-type-floatingFolder .ff-zone-form {
+  top: 82px;
+  width: 278px;
+  max-height: calc(100vh - 94px);
+  overflow: auto;
+}
+
+body.widget-type-floatingFolder #floating-folder-zone-name:focus {
+  outline: none;
+  border-color: rgba(91, 114, 239, 0.7);
+  box-shadow: 0 0 0 3px rgba(91, 114, 239, 0.12);
+}
+
+body.widget-type-floatingFolder .ff-zone-icon-field {
+  display: grid;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+body.widget-type-floatingFolder .ff-zone-icon-field > span {
+  color: #657087;
+  font-size: 10px;
+  font-weight: 720;
+}
+
+body.widget-type-floatingFolder .ff-zone-icon-options {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+
+body.widget-type-floatingFolder .ff-zone-icon-option {
+  display: grid;
+  width: 100%;
+  height: 46px;
+  min-height: 46px;
+  padding: 4px;
+  place-items: center;
+  border: 1px solid rgba(193, 207, 234, 0.64);
+  border-radius: 12px;
+  background: rgba(246, 249, 255, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  cursor: pointer;
+  transition: border-color 140ms ease, background 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+
+body.widget-type-floatingFolder .ff-zone-icon-option:hover {
+  border-color: rgba(91, 114, 239, 0.44);
+  background: rgba(238, 242, 255, 0.9);
+  transform: translateY(-1px);
+}
+
+body.widget-type-floatingFolder .ff-zone-icon-option.is-selected {
+  border-color: rgba(72, 96, 230, 0.76);
+  background: linear-gradient(145deg, #eef2ff, #e7edff);
+  box-shadow: 0 0 0 2px rgba(91, 114, 239, 0.13), inset 0 1px 0 #fff;
+}
+
+body.widget-type-floatingFolder .ff-zone-picker-art {
+  display: block;
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  opacity: 0.82;
+  filter: grayscale(1) saturate(0) contrast(0.9);
+}
+
+body.widget-type-floatingFolder .ff-zone-icon-option.is-selected .ff-zone-picker-art {
+  opacity: 1;
+  filter: invert(37%) sepia(74%) saturate(3072%) hue-rotate(218deg) brightness(94%) contrast(94%);
+}
+
+body.widget-type-floatingFolder .ff-zone-manager-name {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+}
+
+body.widget-type-floatingFolder .ff-zone-manager-name > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.widget-type-floatingFolder .ff-zone-manager-icon {
+  width: 25px;
+  height: 25px;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+body[data-theme="dark"].widget-type-floatingFolder .ff-zone-icon-field > span {
+  color: #aab5c9;
+}
+
+body[data-theme="dark"].widget-type-floatingFolder .ff-zone-icon-option {
+  border-color: rgba(143, 163, 202, 0.24);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+body[data-theme="dark"].widget-type-floatingFolder .ff-zone-icon-option.is-selected {
+  border-color: rgba(136, 155, 244, 0.58);
+  background: rgba(86, 103, 192, 0.23);
+  box-shadow: 0 0 0 2px rgba(115, 132, 225, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+body.widget-type-floatingFolder .ff-size-controls button.is-active,
+body.widget-type-floatingFolder .ff-button--primary {
+  color: #fff;
+  background: linear-gradient(145deg, #5b72ef, #315ce9);
+  box-shadow: 0 6px 14px rgba(49, 92, 233, 0.22);
+}
+
+body.widget-type-floatingFolder .ff-range-field input[type="range"] {
+  accent-color: #596eea;
+}
+
+body.widget-type-floatingFolder .ff-toggle-list input:checked + i {
+  background: #596eea;
+}
+
+body[data-floating-folder-size="comfortable"].widget-type-floatingFolder .floating-folder-widget,
+body[data-floating-folder-size="comfortable"].ff-hide-hint.widget-type-floatingFolder .floating-folder-widget {
+  grid-template-rows: 48px 48px minmax(0, 1fr);
+}
+
+body.ff-detached-zone[data-floating-folder-size="comfortable"].widget-type-floatingFolder .floating-folder-widget {
+  grid-template-rows: 48px minmax(0, 1fr);
+}
+
+body[data-floating-folder-size="comfortable"].widget-type-floatingFolder .ff-titlebar {
+  min-height: 48px;
+  padding: 5px 8px 2px 10px;
+}
+
+body[data-floating-folder-size="comfortable"].widget-type-floatingFolder .ff-title-mark-shell {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+}
+
+body[data-floating-folder-size="comfortable"].widget-type-floatingFolder .ff-title-mark {
+  width: 27px;
+  height: 27px;
+}
+
+body[data-floating-folder-size="comfortable"].widget-type-floatingFolder .ff-title-copy strong {
+  font-size: 14px;
+}
+
+body[data-floating-folder-size="comfortable"].widget-type-floatingFolder .ff-title-actions {
+  gap: 3px;
+}
+
+body[data-floating-folder-size="comfortable"].widget-type-floatingFolder .ff-icon-button {
+  width: 30px;
+  height: 30px;
+  min-height: 30px;
+  border-radius: 9px;
+}
+
+body[data-floating-folder-size="comfortable"].widget-type-floatingFolder .ff-zone-tabs {
+  min-height: 40px;
+  margin: 0 9px 8px;
+  padding: 4px 6px;
+  gap: 2px;
+  border-radius: 13px;
+}
+
+body[data-floating-folder-size="comfortable"].widget-type-floatingFolder .ff-zone-tab {
+  min-height: 30px;
+  gap: 3px;
+  padding-inline: 6px;
+  font-size: 10px;
+}
+
+body[data-floating-folder-size="comfortable"].widget-type-floatingFolder .ff-zone-icon {
+  width: 15px;
+  height: 15px;
+}
+
+body[data-floating-folder-size="comfortable"].widget-type-floatingFolder .ff-zone-tab--add {
+  padding-inline: 7px;
+}
+
+body[data-floating-folder-size="comfortable"].widget-type-floatingFolder .ff-app-surface {
+  margin: 0 9px 9px;
+  border-radius: 17px;
+}
+
+body[data-floating-folder-size="comfortable"].widget-type-floatingFolder .ff-zone-form {
+  top: 52px;
+  width: 268px;
+  max-height: calc(100vh - 61px);
+  padding: 10px;
+}
+
+body[data-floating-folder-size="comfortable"].widget-type-floatingFolder .ff-zone-icon-field {
+  gap: 5px;
+  margin-top: 9px;
+}
+
+body[data-floating-folder-size="comfortable"].widget-type-floatingFolder .ff-zone-icon-option {
+  height: 40px;
+  min-height: 40px;
+}
+
+body[data-floating-folder-size="comfortable"].widget-type-floatingFolder .ff-zone-picker-art {
+  width: 28px;
+  height: 28px;
+}
+
+body[data-floating-folder-size="comfortable"].widget-type-floatingFolder .ff-empty-illustration {
+  width: 92px;
+  height: 92px;
+}
+
+body[data-floating-folder-size="comfortable"].widget-type-floatingFolder .ff-empty-state strong {
+  font-size: 13px;
+}
+
+body[data-floating-folder-size="comfortable"].widget-type-floatingFolder .ff-empty-state span {
+  max-width: 250px;
+  font-size: 9px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .floating-folder-widget,
+body[data-floating-folder-size="compact"].ff-hide-hint.widget-type-floatingFolder .floating-folder-widget {
+  grid-template-rows: 40px 38px minmax(0, 1fr);
+}
+
+body.ff-detached-zone[data-floating-folder-size="compact"].widget-type-floatingFolder .floating-folder-widget {
+  grid-template-rows: 40px minmax(0, 1fr);
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-titlebar {
+  min-height: 40px;
+  padding: 4px 6px 1px 7px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-title {
+  gap: 5px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-title-mark-shell {
+  width: 27px;
+  height: 27px;
+  border-radius: 9px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-title-mark {
+  width: 23px;
+  height: 23px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-title-copy strong {
+  max-width: 76px;
+  font-size: 12px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-title-actions {
+  gap: 2px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-icon-button,
+body[data-floating-folder-size="compact"].widget-type-floatingFolder #floating-folder-settings-btn,
+body[data-floating-folder-size="compact"].widget-type-floatingFolder #floating-folder-pin-btn {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  min-height: 26px;
+  border-radius: 8px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-icon-button .ff-ui-icon {
+  width: 15px;
+  height: 15px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-zone-tabs {
+  min-height: 32px;
+  margin: 0 7px 6px;
+  padding: 3px 4px;
+  gap: 2px;
+  border-radius: 11px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-zone-tab {
+  min-width: auto;
+  min-height: 26px;
+  padding-inline: 5px;
+  border-radius: 8px;
+  font-size: 9px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-zone-icon {
+  display: none;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-zone-tab--add {
+  width: auto;
+  min-width: 26px;
+  padding-inline: 5px;
+  font-size: 9px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-zone-tab--add span {
+  display: inline;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-app-surface {
+  margin: 0 7px 7px;
+  border-radius: 14px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-empty-state {
+  gap: 2px;
+  padding: 7px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-empty-illustration {
+  width: 46px;
+  height: 46px;
+  margin-bottom: 0;
+  filter: drop-shadow(0 6px 8px rgba(76, 94, 180, 0.12));
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-empty-state strong {
+  font-size: 11px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-empty-state span {
+  max-width: 205px;
+  overflow: hidden;
+  font-size: 8px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-zone-form {
+  top: 38px;
+  right: 7px;
+  left: 7px;
+  width: auto;
+  max-height: calc(100vh - 45px);
+  padding: 6px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-zone-form label {
+  margin-bottom: 3px;
+  font-size: 9px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-zone-form input[type="text"],
+body[data-floating-folder-size="compact"].widget-type-floatingFolder #floating-folder-zone-name {
+  height: 28px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-zone-icon-field {
+  gap: 3px;
+  margin-top: 4px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-zone-icon-field > span {
+  font-size: 8px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-zone-icon-options {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-zone-icon-options::-webkit-scrollbar {
+  display: none;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-zone-icon-option {
+  width: 27px;
+  height: 27px;
+  min-height: 27px;
+  flex: 0 0 27px;
+  padding: 2px;
+  border-radius: 8px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-zone-picker-art {
+  width: 21px;
+  height: 21px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-form-actions {
+  margin-top: 4px;
+}
+
+body[data-floating-folder-size="compact"].widget-type-floatingFolder .ff-button {
+  min-height: 26px;
+  padding-inline: 10px;
+}

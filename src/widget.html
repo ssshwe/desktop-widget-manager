@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; connect-src 'self' https://api.bigdatacloud.net; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>桌面小组件</title>
+    <link rel="stylesheet" href="./styles/widget.css" />
+    <link rel="stylesheet" href="./styles/floating-folder-refresh.css" />
+    <script src="../node_modules/motion/dist/motion.js?v=12.42.2" defer></script>
+    <script src="./shared/uiUtils.js" defer></script>
+    <script src="./widgetRenderer.js" defer></script>
+  </head>
+  <body>
+    <section class="widget-card">
+      <header class="widget-drag-bar">
+        <span class="widget-title-group">
+          <span class="widget-title-icon" aria-hidden="true">
+            <img src="./assets/ui-icons/phosphor-check-bold.svg" alt="" />
+          </span>
+          <span id="widget-type-label">Widget</span>
+        </span>
+        <span class="widget-window-actions">
+          <button id="pin-widget-btn" class="window-action widget-todo-action" type="button" aria-label="固定到桌面" aria-pressed="false">
+            <img src="./assets/ui-icons/phosphor-push-pin-simple.svg" alt="" />
+          </button>
+          <button id="settings-widget-btn" class="window-action widget-todo-action" type="button" aria-label="组件设置" aria-expanded="false">
+            <img src="./assets/ui-icons/phosphor-gear.svg" alt="" />
+          </button>
+          <button id="more-widget-btn" class="window-action widget-todo-action" type="button" aria-label="更多操作" aria-expanded="false">
+            <img src="./assets/ui-icons/phosphor-dots-three.svg" alt="" />
+          </button>
+          <button id="hide-widget-btn" class="window-action" type="button" aria-label="隐藏小组件">
+            <img src="./assets/ui-icons/phosphor-x.svg" alt="" />
+          </button>
+        </span>
+      </header>
+
+      <main id="widget-content" class="widget-content"></main>
+    </section>
+  </body>
+</html>

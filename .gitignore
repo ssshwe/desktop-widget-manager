@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Build and generated output
+dist/
+output/
+tmp/
+native/**/build/
+
+# Local configuration and runtime data
+.env
+.env.*
+!.env.example
+*.log
+*.db
+*.sqlite
+*.sqlite3
+
+# Native build artifacts
+*.exe
+*.dll
+*.node
+*.pdb
+*.exp
+*.lib
+*.iobj
+*.ipdb
+
+# Invalid downloaded asset (HTML content saved with an .ico extension)
+src/assets/floating-folder/app-icons/database.ico
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,79 @@
+{
+  "name": "desktop-widget-manager",
+  "version": "0.1.0",
+  "description": "桌面小组件管理工具 - Electron 桌面应用",
+  "productName": "桌面小组件管理工具",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:native": "node-gyp rebuild --directory native/windows-desktop-zorder --target=42.5.0 --arch=x64 --dist-url=https://electronjs.org/headers",
+    "test:window-modes": "electron scripts/verify-window-modes.js",
+    "test:native-fallback": "electron scripts/verify-native-fallback.js",
+    "test:regression": "electron scripts/final-regression.js",
+    "test:notes": "electron scripts/verify-notes-persistence.js",
+    "qa:notes": "electron scripts/capture-notes-qa.js",
+    "qa:notes:initial": "electron scripts/capture-notes-qa.js --initial-size",
+    "test:regression:native": "electron scripts/final-regression.js --native",
+    "build": "npm run build:native && electron-builder --win nsis --x64",
+    "verify:release-signing": "node scripts/verify-release-signing.js",
+    "build:release": "npm run verify:release-signing && npm run build"
+  },
+  "keywords": [
+    "electron",
+    "desktop-widget",
+    "windows"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^42.7.0",
+    "electron-builder": "^26.15.3",
+    "node-gyp": "^13.0.1"
+  },
+  "dependencies": {
+    "motion": "12.42.2",
+    "sql.js": "^1.14.1"
+  },
+  "build": {
+    "appId": "com.local.desktop-widget-manager",
+    "productName": "桌面小组件管理工具",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "native/windows-desktop-zorder/index.js",
+      "native/windows-desktop-zorder/build/Release/*.node",
+      "src/**/*",
+      "resources/**/*",
+      "package.json",
+      "node_modules/sql.js/**/*",
+      "node_modules/motion/dist/motion.js",
+      "node_modules/motion/LICENSE.md"
+    ],
+    "asarUnpack": [
+      "node_modules/sql.js/dist/*.wasm",
+      "native/**/*.node"
+    ],
+    "win": {
+      "icon": "resources/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "桌面小组件管理工具",
+      "artifactName": "桌面小组件管理工具-${version}-Setup.${ext}"
+    }
+  }
+}

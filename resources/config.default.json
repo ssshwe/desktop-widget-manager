@@ -1,0 +1,14 @@
+{
+  "theme": "light",
+  "globalOpacity": 0.92,
+  "borderRadius": 24,
+  "fontSize": 16,
+  "shadow": true,
+  "autoStart": false,
+  "managerWindow": {
+    "width": 1672,
+    "height": 941,
+    "center": true
+  },
+  "widgets": {}
+}

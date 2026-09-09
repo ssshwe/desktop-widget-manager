@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>桌面小组件管理工具</title>
+    <link rel="stylesheet" href="./styles/style.css?v=0.1.2" />
+    <script src="../node_modules/motion/dist/motion.js?v=12.42.2" defer></script>
+    <script src="./shared/uiUtils.js" defer></script>
+    <script src="./renderer.js?v=0.1.1" defer></script>
+  </head>
+  <body>
+    <div class="desktop-window">
+      <header class="window-titlebar">
+        <div class="window-title">
+          <span class="window-app-icon">
+            <img src="./assets/ui-icons/figma-icon-23.svg" alt="" />
+          </span>
+          <span>桌面小组件管理工具</span>
+        </div>
+        <div class="window-controls">
+          <button id="window-minimize-btn" type="button" aria-label="最小化">
+            <img src="./assets/ui-icons/window-minus.svg" alt="" />
+          </button>
+          <button id="window-maximize-btn" type="button" aria-label="最大化">
+            <img src="./assets/ui-icons/window-square.svg" alt="" />
+          </button>
+          <button id="window-close-btn" type="button" aria-label="关闭">
+            <img src="./assets/ui-icons/window-x.svg" alt="" />
+          </button>
+        </div>
+      </header>
+
+      <main class="manager-app">
+        <aside class="sidebar" aria-label="主导航">
+          <div class="brand-block">
+            <span class="brand-mark">DW</span>
+            <div class="brand-copy">
+              <p class="brand-kicker">Desktop</p>
+              <h1>桌面小组件管理工具</h1>
+            </div>
+          </div>
+
+          <nav class="side-nav" aria-label="功能导航">
+            <button class="nav-item is-active" type="button" data-view="widgets">
+              <img src="./assets/ui-icons/figma-icon-20.svg" alt="" />
+              <span>组件管理</span>
+            </button>
+            <button class="nav-item" type="button" data-view="desktop">
+              <img src="./assets/ui-icons/figma-icon-21.svg" alt="" />
+              <span>桌面分类</span>
+            </button>
+            <button class="nav-item" type="button" data-view="theme">
+              <img src="./assets/ui-icons/figma-icon-22.svg" alt="" />
+              <span>主题设置</span>
+            </button>
+            <button class="nav-item" type="button" data-view="system">
+              <img src="./assets/ui-icons/figma-icon-23.svg" alt="" />
+              <span>系统设置</span>
+            </button>
+          </nav>
+
+          <div class="sidebar-footer">
+            <span class="status-dot"></span>
+            <span id="api-status">正在连接主进程</span>
+          </div>
+        </aside>
+
+        <section class="content-shell">
+          <header class="content-header">
+            <div class="page-title-group">
+              <span class="page-title-icon">
+                <img src="./assets/ui-icons/figma-icon-24.svg" alt="" />
+              </span>
+              <div>
+                <h2 id="view-title">组件管理</h2>
+                <p id="view-subtitle" class="page-subtitle">Widget Center</p>
+              </div>
+            </div>
+            <div class="header-actions">
+              <span id="action-status" class="action-status">已删除小组件</span>
+              <button id="refresh-widget-list-btn" class="secondary-action" type="button">
+                <img src="./assets/ui-icons/figma-icon-25.svg" alt="" />
+                <span>刷新列表</span>
+              </button>
+              <span id="widget-count" class="count-pill">0 个</span>
+            </div>
+          </header>
+
+          <section id="widgets-view" class="view-panel is-active" aria-labelledby="view-title">
+            <section class="section-block added-widgets-section" aria-labelledby="added-widget-title">
+              <div class="section-title-row widget-section-title">
+                <div class="widget-section-heading">
+                  <span class="section-title-icon">
+                    <img src="./assets/ui-icons/figma-icon-26.svg" alt="" />
+                  </span>
+                  <h3 id="added-widget-title">已添加小组件</h3>
+                </div>
+              </div>
+
+              <div class="table-shell">
+                <div class="widget-table-head" role="row">
+                  <span>小组件信息</span>
+                  <span>类型</span>
+                  <span>显示状态</span>
+                  <span>操作</span>
+                  <span>透明度</span>
+                </div>
+                <div id="added-widget-list" class="added-widget-list" aria-live="polite"></div>
+              </div>
+            </section>
+
+            <section class="section-block available-widgets-section" aria-labelledby="available-widget-title">
+              <div class="section-title-row widget-section-title">
+                <div class="widget-section-heading">
+                  <span class="section-title-icon">
+                    <img src="./assets/ui-icons/figma-icon-27.svg" alt="" />
+                  </span>
+                  <h3 id="available-widget-title">可添加小组件</h3>
+                  <p class="section-kicker">Available Widgets</p>
+                </div>
+              </div>
+
+              <div id="available-widget-grid" class="available-widget-grid"></div>
+            </section>
+          </section>
+
+          <section id="desktop-view" class="view-panel" aria-labelledby="view-title">
+          <section class="section-block" aria-labelledby="desktop-file-title">
+            <div class="section-title-row">
+              <div>
+                <h3 id="desktop-file-title">桌面文件列表</h3>
+              </div>
+              <div class="section-actions">
+                <span id="desktop-file-count" class="count-pill">0 个</span>
+                <button id="scan-desktop-btn" type="button">扫描桌面</button>
+                <button id="organize-desktop-btn" type="button">一键整理</button>
+              </div>
+            </div>
+
+            <p id="desktop-scan-message" class="inline-message">点击“扫描桌面”读取当前用户桌面文件。</p>
+
+            <div id="desktop-category-preview" class="category-preview-grid" aria-label="分类预览"></div>
+
+            <section id="desktop-organize-preview" class="organize-preview-panel" hidden>
+              <div class="organize-preview-header">
+                <div>
+                  <p class="section-kicker">Organize Preview</p>
+                  <h4>整理预览</h4>
+                </div>
+                <div class="organize-preview-actions">
+                  <button id="confirm-organize-btn" type="button">确认整理</button>
+                  <button id="cancel-organize-btn" type="button">取消</button>
+                </div>
+              </div>
+              <p id="organize-preview-message" class="inline-message">请确认以下文件移动方案。</p>
+              <div id="organize-preview-list" class="organize-preview-list"></div>
+            </section>
+
+            <div class="table-shell">
+              <div class="desktop-file-table-head" role="row">
+                <span>名称 / 路径</span>
+                <span>类型</span>
+                <span>最近修改时间</span>
+                <span>建议分类</span>
+                <span>命中规则</span>
+              </div>
+              <div id="desktop-file-list" class="desktop-file-list" aria-live="polite"></div>
+            </div>
+          </section>
+          </section>
+
+          <section id="theme-view" class="view-panel" aria-labelledby="view-title">
+          <section class="section-block" aria-labelledby="theme-setting-title">
+            <div class="section-title-row">
+              <div>
+                <h3 id="theme-setting-title">主题与透明度</h3>
+              </div>
+              <div class="section-actions">
+                <button id="save-theme-btn" type="button">保存主题</button>
+              </div>
+            </div>
+
+            <div class="theme-settings-layout">
+              <form id="theme-settings-form" class="theme-settings-form">
+                <fieldset class="theme-fieldset">
+                  <legend>主题模式</legend>
+                  <div class="segmented-control" role="group" aria-label="主题模式">
+                    <button type="button" data-theme-option="light">浅色主题</button>
+                    <button type="button" data-theme-option="dark">深色主题</button>
+                    <button type="button" data-theme-option="glass">毛玻璃主题</button>
+                  </div>
+                </fieldset>
+
+                <label class="theme-control-row">
+                  <span>全局透明度 <strong id="theme-opacity-value">92%</strong></span>
+                  <input id="theme-opacity-input" type="range" min="0.45" max="1" step="0.01" value="0.92" />
+                </label>
+
+                <label class="theme-control-row">
+                  <span>圆角大小 <strong id="theme-radius-value">24px</strong></span>
+                  <input id="theme-radius-input" type="range" min="4" max="32" step="1" value="24" />
+                </label>
+
+                <label class="theme-control-row">
+                  <span>字体大小 <strong id="theme-font-size-value">16px</strong></span>
+                  <input id="theme-font-size-input" type="range" min="13" max="20" step="1" value="16" />
+                </label>
+
+                <label class="theme-toggle-row">
+                  <input id="theme-shadow-input" type="checkbox" checked />
+                  <span>显示阴影</span>
+                </label>
+              </form>
+
+              <aside class="theme-preview-panel" aria-label="主题预览">
+                <div class="theme-preview-card">
+                  <span class="widget-type-chip">Preview</span>
+                  <h4>桌面小组件</h4>
+                  <p>主题、透明度、圆角、阴影和字体大小会实时预览。</p>
+                  <div class="theme-preview-metrics">
+                    <span>学习</span>
+                    <span>工作</span>
+                    <span>工具</span>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </section>
+          </section>
+
+          <section id="system-view" class="view-panel" aria-labelledby="view-title">
+          <section class="section-block" aria-labelledby="system-setting-title">
+            <div class="section-title-row">
+              <div>
+                <h3 id="system-setting-title">系统设置</h3>
+              </div>
+            </div>
+
+            <div class="system-settings-panel">
+              <article class="system-setting-card">
+                <div>
+                  <span class="widget-type-chip">Windows</span>
+                  <h4>开机自启动</h4>
+                  <p>开启后，软件会随 Windows 登录自动启动；关闭后会取消系统启动项。</p>
+                </div>
+                <label class="switch-control">
+                  <input id="auto-start-input" type="checkbox" />
+                  <span aria-hidden="true"></span>
+                </label>
+              </article>
+              <p id="system-settings-message" class="inline-message">开机自启动默认关闭。</p>
+            </div>
+          </section>
+          </section>
+
+          <section id="placeholder-view" class="view-panel placeholder-view" aria-live="polite">
+            <p class="section-kicker" id="placeholder-kicker">Coming Soon</p>
+            <h3 id="placeholder-title">功能准备中</h3>
+            <p id="placeholder-text">该模块入口已预留。</p>
+          </section>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
